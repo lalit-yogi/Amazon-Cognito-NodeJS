@@ -16,17 +16,13 @@ const request = require('request');
 const jwkToPem = require('jwk-to-pem');
 const jwt = require('jsonwebtoken');
 global.fetch = require('node-fetch');
-// const crypto = require('crypto');
-// const ClientId = crypto.createHmac('SHA256', "aofk3j29agjpfho25iqh4l0uo2htluefdiitjmh47d9fr5cmgmi")
-//   .update("769995928724" + "56r6tk8uk1l0kk02ltraacs5fd")
-//   .digest('base64')
-//   console.log(ClientId)
-const ClientId = "7o3nn451rckd2k22511963b8bg"
+
+const ClientId = "yourClientId"
 const poolData = {    
-UserPoolId : "eu-west-2_uz2FJUWdq",    
+UserPoolId : "PoolId",    
 ClientId : ClientId
 }; 
-const pool_region = 'eu-west-2';
+const pool_region = 'region';
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
 app.post('/register', function (req, res) {
