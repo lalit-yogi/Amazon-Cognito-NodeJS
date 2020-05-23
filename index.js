@@ -24,7 +24,7 @@ ClientId : ClientId
 }; 
 const pool_region = 'region';
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
+//register new user
 app.post('/register', function (req, res) {
     console.log(req.body);
 	let email = req.body.email
@@ -45,7 +45,7 @@ app.post('/register', function (req, res) {
     });
   
 });
-
+//confirm user with confirmation code
 app.post('/confirm-signup', function (req, res) {
     //console.log(req.body);
     let username = req.body.email
@@ -64,7 +64,7 @@ app.post('/confirm-signup', function (req, res) {
         });
   
 });
-
+//Resend confirmation code to email if not received email
 app.post('/resend-confirmation-mail', function (req, res) {
     console.log(req.body);
     let username = req.body.email
@@ -82,6 +82,7 @@ app.post('/resend-confirmation-mail', function (req, res) {
         });
   
 });
+//User login and get jwt token
 app.post('/login', function (req, res) {
 	//console.log(req.body)
 	let email = req.body.email
@@ -116,6 +117,7 @@ app.post('/login', function (req, res) {
     });
   
 });
+//get user details by login credential
 app.post('/get-details', function (req, res) {
     let username = req.body.email
     let password = req.body.password
@@ -147,6 +149,7 @@ app.post('/get-details', function (req, res) {
 
   
 });
+//edit user email
 app.post('/change-email', function (req, res) {
 
     // let birthdate = req.body.birthdate
@@ -184,7 +187,45 @@ app.post('/change-email', function (req, res) {
 
   
 });
+//confirm email by confirmation code 
+app.post('/confirm-email', function (req, res) {
+    console.log(req.body)
+    let username = req.body.email
+    let password = req.body.password
+    let confirmationCode = req.body.confirmationCode
+    var attributeList = [];
+    attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({Name: "email",Value: username}));
+   var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
+            Username: username,
+            Password: password,
+        });
 
+        var userData = {
+            Username: username,
+            Pool: userPool
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: function (result) {
+                cognitoUser.verifyAttribute("email",confirmationCode,{
+                onSuccess: function (result2) {
+                        res.send({"status":"TRUE","message":result2});
+                },
+                onFailure: function (err2) {
+                        res.send({"status":"FALSE","err":err2.message});
+                //console.log(err);
+                },
+                });
+             },
+            onFailure: function (err) {
+                res.send({"status":"FALSE","err":err.message});
+                //console.log(err);
+            },
+        });
+        
+  
+});
+//change user password
 app.post('/change-password', function (req, res) {
 	//console.log(req.body)
 	let username = req.body.email
@@ -221,6 +262,7 @@ app.post('/change-password', function (req, res) {
         });
   
 });
+//forgot password
 app.post('/forgot-password', function (req, res) {
     console.log(req.body)
     let username = req.body.email
@@ -241,6 +283,7 @@ app.post('/forgot-password', function (req, res) {
         });
   
 });
+//confirm password with confirmation code 
 app.post('/confirm-password', function (req, res) {
     console.log(req.body)
     let username = req.body.email
@@ -261,43 +304,6 @@ app.post('/confirm-password', function (req, res) {
                 //console.log(err);
             },
         });
-  
-});
-app.post('/confirm-email', function (req, res) {
-    console.log(req.body)
-    let username = req.body.email
-    let password = req.body.password
-    let confirmationCode = req.body.confirmationCode
-    var attributeList = [];
-    attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({Name: "email",Value: username}));
-   var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
-            Username: username,
-            Password: password,
-        });
-
-        var userData = {
-            Username: username,
-            Pool: userPool
-        };
-        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        cognitoUser.authenticateUser(authenticationDetails, {
-            onSuccess: function (result) {
-                cognitoUser.verifyAttribute("email",confirmationCode,{
-                onSuccess: function (result2) {
-                        res.send({"status":"TRUE","message":result2});
-                },
-                onFailure: function (err2) {
-                        res.send({"status":"FALSE","err":err2.message});
-                //console.log(err);
-                },
-                });
-             },
-            onFailure: function (err) {
-                res.send({"status":"FALSE","err":err.message});
-                //console.log(err);
-            },
-        });
-        
   
 });
 app.listen(3001, function () {
